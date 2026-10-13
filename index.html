@@ -1,364 +1,333 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d4b5c">
 <title>淀川河川敷テニスコート 空き状況</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --sky:#E3ECEF;      /* 河川敷の空 */
-  --river:#1F4E5F;    /* 淀川の水 */
-  --turf:#2F7D4F;     /* 砂入り人工芝 */
-  --turf-dark:#245F3C;
-  --line:#FFFFFF;     /* コートライン */
-  --ink:#1A2B30;
-  --muted:#6C7D82;
-  --full:#C9D2D4;
-  --sat:#2B6CB0;
-  --sun:#C2412D;
-  --lottery:#B7791F;
-  --paper:#F7FAFA;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{
-  font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
-  background:var(--sky);color:var(--ink);
-  line-height:1.6;min-height:100vh;
-  padding-bottom:env(safe-area-inset-bottom);
-}
-button{font:inherit;color:inherit;cursor:pointer}
-:focus-visible{outline:3px solid var(--sat);outline-offset:2px}
+  :root {
+    --header: #1d4b5c;
+    --bg: #e6edef;
+    --card: #ffffff;
+    --card-head: #f4f8f9;
+    --line: #dde5e8;
+    --text: #17252b;
+    --muted: #6b7b82;
+    --green: #2e7b4f;
+    --gray-chip: #c3ced2;
+    --gray-chip-text: #9aa8ae;
+    --orange: #c98a2b;
+    --orange-text: #a66a12;
+    --sat: #2a62b8;
+    --sun: #c23a3a;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+    line-height: 1.4;
+  }
+  .wrap { max-width: 520px; margin: 0 auto; }
 
-/* ヘッダー：川の帯 */
-header{
-  background:var(--river);color:#fff;
-  padding:calc(18px + env(safe-area-inset-top)) 20px 0;
-  position:relative;
-}
-header h1{font-weight:900;font-size:1.35rem;letter-spacing:.04em;line-height:1.35}
-header p{font-size:.85rem;opacity:.8;margin-top:2px}
-.wave{display:block;width:100%;height:18px;margin-top:14px}
+  header { background: var(--header); color: #fff; }
+  header .wrap { padding: calc(14px + env(safe-area-inset-top)) 16px 10px; }
+  h1 { margin: 0; font-size: 21px; letter-spacing: .02em; }
+  header p { margin: 2px 0 0; font-size: 13px; color: #c4d6dc; }
+  .wave { display: block; width: 100%; height: 14px; background: var(--bg); }
+  .wave path { fill: var(--header); }
 
-/* 操作バー */
-.bar{
-  position:sticky;top:0;z-index:5;
-  background:var(--sky);padding:12px 16px 10px;
-  border-bottom:1px solid #cfdadd;
-}
-.row{display:flex;gap:8px;align-items:center}
-.tabs{display:flex;background:#fff;border-radius:10px;padding:3px;flex:1}
-.tabs button{
-  flex:1;border:0;background:none;padding:8px 0;border-radius:8px;
-  font-weight:700;font-size:.95rem;color:var(--muted);
-}
-.tabs button[aria-selected="true"]{background:var(--river);color:#fff}
-.check{
-  border:0;background:var(--turf);color:#fff;font-weight:700;
-  padding:11px 16px;border-radius:10px;white-space:nowrap;
-  box-shadow:inset 0 0 0 2px var(--line), inset 0 0 0 4px var(--turf);
-}
-.check:disabled{opacity:.6}
-.meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:.8rem;color:var(--muted)}
-.meta label{display:flex;align-items:center;gap:6px;color:var(--ink)}
-.meta input{width:18px;height:18px;accent-color:var(--turf)}
-.sample{
-  background:var(--lottery);color:#fff;font-size:.72rem;font-weight:700;
-  padding:1px 8px;border-radius:4px;margin-left:6px;
-}
+  .controls { padding: 12px 8px 0; }
+  .row { display: flex; gap: 8px; align-items: stretch; }
+  .tabs { flex: 1; display: flex; background: #fff; border-radius: 12px; padding: 4px; }
+  .tabs button {
+    flex: 1; border: 0; background: none; border-radius: 9px; padding: 10px 0;
+    font: inherit; font-weight: 700; font-size: 15px; color: var(--text); cursor: pointer;
+  }
+  .tabs button[aria-selected="true"] { background: var(--header); color: #fff; }
+  #refresh {
+    border: 0; border-radius: 12px; background: var(--green); color: #fff; padding: 0 16px;
+    font: inherit; font-weight: 700; font-size: 16px; cursor: pointer; white-space: nowrap;
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--green);
+    margin: 3px;
+  }
+  #refresh:disabled { opacity: .6; cursor: default; }
+  .meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 4px 0; font-size: 13px; color: var(--muted); }
+  .meta label { display: flex; align-items: center; gap: 5px; color: var(--text); cursor: pointer; }
+  .meta input { width: 18px; height: 18px; accent-color: var(--green); margin: 0; }
+  .error { margin: 10px 4px 0; padding: 10px 12px; border-radius: 10px; background: #fbeaea; color: #8f2424; font-size: 14px; }
 
-main{padding:14px 16px 32px;max-width:560px;margin:0 auto}
+  .legend { display: flex; gap: 16px; align-items: center; margin-top: 12px; padding: 12px 6px; border-top: 1px solid #cfd9dd; font-size: 14px; color: var(--muted); }
+  .legend span { display: flex; align-items: center; gap: 6px; }
+  .legend .chip { width: 26px; height: 22px; font-size: 11px; font-style: italic; flex: none; aspect-ratio: auto; }
 
-/* 日付ブロック */
-.day{background:var(--paper);border-radius:14px;margin-bottom:14px;overflow:hidden}
-.day-head{display:flex;align-items:center;gap:12px;padding:12px 14px 10px}
-.num{
-  font-family:"Barlow Condensed",sans-serif;font-weight:700;
-  font-size:2.6rem;line-height:1;min-width:2.4ch;text-align:right;
-}
-.day-info{flex:1}
-.dow{font-weight:700;font-size:1rem}
-.dow.sat{color:var(--sat)} .dow.sun{color:var(--sun)}
-.hname{font-size:.78rem;color:var(--sun);margin-left:4px}
-.count{font-size:.85rem;color:var(--muted)}
-.count b{color:var(--turf);font-size:1rem}
-.day.none .num{color:var(--muted)}
+  main { padding: 0 8px calc(24px + env(safe-area-inset-bottom)); }
+  .day { background: var(--card); border-radius: 14px; overflow: hidden; margin-bottom: 14px; }
+  .day-head { display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 22px; background: var(--card-head); }
+  .day-num { font-size: 44px; font-weight: 800; line-height: 1; min-width: 56px; }
+  .day-date { font-weight: 700; font-size: 15px; }
+  .sat .day-date { color: var(--sat); }
+  .sun .day-date { color: var(--sun); }
+  .day-sum { font-size: 14px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0 14px; }
+  .day-sum b { color: var(--green); font-size: 16px; }
+  .day-sum b.zero { color: var(--gray-chip-text); }
+  .day-sum b.lot { color: var(--orange-text); font-size: 14px; }
 
-.slots{border-top:1px solid #e1e8ea}
-.slot{display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid #eef2f3}
-.slot:last-child{border-bottom:0}
-.time{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:1.05rem;width:5.2em;flex-shrink:0;color:var(--river)}
-.courts{display:flex;flex-wrap:wrap;gap:5px}
-.area{border-top:1px solid #e1e8ea}
-.area-head{display:flex;align-items:baseline;gap:8px;padding:8px 14px 2px}
-.area-name{font-weight:900;font-size:.95rem}
-.area-sub{font-size:.78rem;color:var(--muted)}
-.area-sub b{color:var(--turf)}
-.area.backup{background:#F0F4F5}
-.area .slots{border-top:0}
+  .area { border-top: 1px solid var(--line); padding: 10px 14px 6px; }
+  .area-head { display: flex; align-items: baseline; gap: 10px; font-size: 12px; color: var(--muted); }
+  .area-head strong { font-size: 16px; color: var(--text); }
+  .area-head b { color: var(--green); }
+  .area-head b.lot { color: var(--orange-text); }
+  .area-none { font-size: 14px; color: var(--muted); padding: 6px 0 4px; }
+  .slot { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+  .slot-time { width: 86px; flex: none; font-weight: 800; font-size: 17px; line-height: 1.35; }
+  .chips { flex: 1; display: flex; gap: 6px; min-width: 0; }
+  .chip {
+    flex: 1 1 0; max-width: 36px; min-width: 0; aspect-ratio: 1; border-radius: 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; line-height: 1;
+  }
+  .chip.free { background: var(--green); color: #fff; border: 3px solid var(--green); box-shadow: inset 0 0 0 1.5px #fff; }
+  .chip.full { border: 1.5px dashed var(--gray-chip); color: var(--gray-chip-text); font-weight: 500; }
+  .chip.lot { border: 1.5px solid var(--orange); color: var(--orange-text); }
+  .chip small { font-size: 9px; font-weight: 600; margin-top: 2px; }
 
-
-/* コートチップ：空きはコート面＋白ライン */
-.ct{
-  min-width:36px;height:34px;padding:0 6px;border-radius:5px;
-  display:inline-flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:.85rem;text-decoration:none;
-}
-.ct.free{
-  background:var(--turf);color:#fff;
-  box-shadow:inset 0 0 0 3px var(--turf), inset 0 0 0 4.5px var(--line);
-}
-.ct.free:active{background:var(--turf-dark)}
-.ct.full{background:transparent;color:#9aa8ab;border:1.5px dashed var(--full)}
-.ct.lottery{background:#fff;color:var(--lottery);border:1.5px solid var(--lottery)}
-
-.empty{padding:6px 14px 14px;font-size:.88rem;color:var(--muted)}
-
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin:2px 0 14px}
-.legend span{display:inline-flex;align-items:center;gap:5px}
-.legend .ct{min-width:26px;height:20px;font-size:.7rem}
-
-.notice{text-align:center;padding:40px 10px;color:var(--muted)}
-footer{font-size:.78rem;color:var(--muted);text-align:center;padding:0 16px 28px;line-height:1.8}
-footer a{color:var(--river)}
-
-@media (prefers-reduced-motion:no-preference){
-  .loading .check{animation:pulse 1s ease-in-out infinite}
-  @keyframes pulse{50%{opacity:.55}}
-}
+  .empty { text-align: center; color: var(--muted); padding: 36px 16px; font-size: 15px; }
+  footer { text-align: center; font-size: 12px; color: var(--muted); padding: 0 16px 28px; }
+  footer a { color: inherit; }
 </style>
 </head>
 <body>
-
 <header>
-  <h1>淀川河川敷テニスコート 空き状況</h1>
-  <p>毛馬・赤川の土日祝</p>
-  <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 9 Q25 1 50 9 T100 9 T150 9 T200 9 T250 9 T300 9 T350 9 T400 9 V18 H0Z" fill="#E3ECEF"/>
+  <div class="wrap">
+    <h1>淀川河川敷テニスコート 空き状況</h1>
+    <p>毛馬・赤川の土日祝</p>
+  </div>
+  <svg class="wave" viewBox="0 0 400 14" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 0H400V6C375 14 350 2 325 7S275 13 250 7 200 2 175 7 125 13 100 7 50 2 25 7 8 10 0 8Z"/>
   </svg>
 </header>
 
-<div class="bar">
-  <div class="row">
-    <div class="tabs" role="tablist">
-      <button role="tab" id="tab0" aria-selected="true">今月</button>
-      <button role="tab" id="tab1" aria-selected="false">来月</button>
+<div class="wrap">
+  <div class="controls">
+    <div class="row">
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="0" aria-selected="true">今月</button>
+        <button role="tab" data-tab="1" aria-selected="false">来月</button>
+      </div>
+      <button id="refresh">今すぐチェック</button>
     </div>
-    <button class="check" id="checkBtn">今すぐチェック</button>
+    <div class="meta">
+      <span id="fetched">取得中…</span>
+      <label><input type="checkbox" id="only-free" checked>空きのある日だけ</label>
+    </div>
+    <div class="error" id="error" hidden></div>
+    <div class="legend">
+      <span><i class="chip free">1</i>空き</span>
+      <span><i class="chip full">1</i>予約済</span>
+      <span><i class="chip lot">1</i>抽選</span>
+    </div>
   </div>
-  <div class="meta">
-    <span id="updated">—</span>
-    <label><input type="checkbox" id="onlyFree" checked>空きのある日だけ</label>
-  </div>
+  <main id="list"></main>
+  <footer>データ元: <a href="https://www.yodoikopark.jp/vacancy.html" target="_blank" rel="noopener">淀川河川公園 施設予約システム</a>（予約は公式サイトから）</footer>
 </div>
 
-<main id="main">
-  <div class="legend">
-    <span><i class="ct free">1</i>空き</span>
-    <span><i class="ct full">1</i>予約済</span>
-    <span><i class="ct lottery">1</i>抽選</span>
-  </div>
-  <div id="list"></div>
-</main>
-
-<footer>
-  空きコートをタップすると「よどいこ！」を開きます。予約にはログインが必要です。<br>
-  <a href="https://www.yodoikopark.jp/vacancy.html" target="_blank" rel="noopener">よどいこ！空き状況ページ</a>
-</footer>
-
 <script>
-// ===== 設定 =====
-// GASのURLが決まったらここに入れる。空のままならサンプル表示。
-const GAS_URL = "";
-const RESERVE_URL = "https://www.yodoikopark.jp/vacancy.html";
+// ▼▼▼ ここを GAS のウェブアプリURL (https://script.google.com/macros/s/…/exec) に差し替える ▼▼▼
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbx5ArFq7gdLoaNKNA3SZGSGS6INwAmZOGN6PigRTT1WuHFwgMndVUW2Hv4gTj48p9baUg/exec';
+// ▲▲▲ 差し替えるのはこの1行だけ ▲▲▲
 
-// 祝日（2026〜2027）
-const HOLIDAYS = {
-  "2026-10-12":"スポーツの日","2026-11-03":"文化の日","2026-11-23":"勤労感謝の日",
-  "2027-01-01":"元日","2027-01-11":"成人の日","2027-02-11":"建国記念の日",
-  "2027-02-23":"天皇誕生日","2027-03-21":"春分の日","2027-03-22":"振替休日",
-  "2027-04-29":"昭和の日","2027-05-03":"憲法記念日","2027-05-04":"みどりの日",
-  "2027-05-05":"こどもの日","2027-07-19":"海の日","2027-08-11":"山の日",
-  "2027-09-20":"敬老の日","2027-09-23":"秋分の日","2027-10-11":"スポーツの日",
-  "2027-11-03":"文化の日","2027-11-23":"勤労感謝の日"
+const $ = (id) => document.getElementById(id);
+const store = {
+  get(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } },
+  set(key, value) { try { localStorage.setItem(key, value); } catch { /* 保存できなくても動作に支障なし */ } },
 };
-const DOW = ["日","月","火","水","木","金","土"];
-// 表示順＝チェック順（毛馬が埋まっていたら赤川）
-const AREAS = [
-  { id:"kema",     name:"毛馬", courts:2 },
-  { id:"akagawa",  name:"赤川", courts:6 }
-];
 
-let state = { tab:0, onlyFree:true, data:null };
+const months = [null, null]; // 月ごとの取得結果 (0=今月 1=来月)。タブを開いたときに取得する
+const loading = [false, false];
+let tab = Number(store.get('tab', '0')) === 1 ? 1 : 0;
+$('only-free').checked = store.get('onlyFree', '1') === '1';
 
-// ===== 日付ユーティリティ =====
-const pad = n => String(n).padStart(2,"0");
-const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const el = (tag, cls, text) => {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+};
+const hhmm = (h) => `${h}:00`;
+const count = (area, status) =>
+  (area.slots ?? []).reduce((n, s) => n + s.courts.filter((c) => c.status === status).length, 0);
 
-function targetDays(monthOffset){
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const first = new Date(now.getFullYear(), now.getMonth()+monthOffset, 1);
-  const days = [];
-  for(let d=new Date(first); d.getMonth()===first.getMonth(); d.setDate(d.getDate()+1)){
-    if(d < today) continue;
-    const key = ymd(d), w = d.getDay();
-    if(w===0 || w===6 || HOLIDAYS[key]) days.push(new Date(d));
+function renderArea(area, onlyFree) {
+  const free = count(area, '空');
+  const lot = count(area, '抽');
+  const box = el('section', 'area');
+  const head = el('div', 'area-head');
+  head.append(el('strong', null, area.name), el('span', null, `${area.courts}面`));
+  if (lot && !free) {
+    const s = el('span', null, '抽選 ');
+    s.append(el('b', 'lot', lot), ' 枠');
+    head.append(s);
+  } else {
+    const s = el('span', null, '空き ');
+    s.append(el('b', null, free), ' 枠');
+    head.append(s);
   }
-  return days;
+  box.append(head);
+
+  if (!area.slots) {
+    box.append(el('div', 'area-none', area.cal === '満' ? '空きなし（全枠予約済）' : '受付対象外'));
+    return box;
+  }
+  for (const slot of area.slots) {
+    if (onlyFree && !slot.courts.some((c) => c.status === '空')) continue;
+    const row = el('div', 'slot');
+    const time = el('div', 'slot-time');
+    time.append(`${hhmm(slot.from)}–`, el('wbr'), hhmm(slot.to));
+    const chips = el('div', 'chips');
+    for (const c of slot.courts) {
+      const kind = c.status === '空' ? 'free' : c.status === '抽' ? 'lot' : 'full';
+      const chip = el('span', `chip ${kind}`, c.no);
+      const label = { free: '空き', lot: `抽選（申込 ${c.bairitu} 件）`, full: '予約済' }[kind];
+      chip.setAttribute('aria-label', `${c.no}番コート ${label}`);
+      if (kind === 'lot') chip.append(el('small', null, `×${c.bairitu}`));
+      chips.append(chip);
+    }
+    row.append(time, chips);
+    box.append(row);
+  }
+  return box;
 }
 
-// ===== データ取得 =====
-// 返す形：{ updatedAt, days:{ "YYYY-MM-DD":{ kema:[slot…], akagawa:[slot…] } } }
-// slot：{ start, end, courts:[{no,status}] }
-// status: "free" | "full" | "lottery"
-async function fetchVacancy(){
-  if(GAS_URL) return fetchFromGas();
-  return makeSample();
+function render() {
+  for (const b of document.querySelectorAll('.tabs button')) b.setAttribute('aria-selected', String(Number(b.dataset.tab) === tab));
+  const month = months[tab];
+  const btn = $('refresh');
+  btn.disabled = loading[tab];
+  btn.textContent = loading[tab] ? '取得中…' : '今すぐチェック';
+  $('fetched').textContent = month ? fetchedLabel(month) : loading[tab] ? '取得中…' : '未取得';
+  const list = $('list');
+  if (!month) {
+    list.replaceChildren(loading[tab] ? el('div', 'empty', '予約サイトから取得しています…') : '');
+    return;
+  }
+  const onlyFree = $('only-free').checked;
+  list.replaceChildren();
+
+  let lotteryDays = 0;
+  for (const day of month.days) {
+    const frees = day.areas.map((a) => count(a, '空'));
+    const hasFree = frees.some((n) => n > 0);
+    if (!hasFree && day.areas.some((a) => a.cal === '抽')) lotteryDays++;
+    if (onlyFree && !hasFree) continue;
+
+    const card = el('article', `day ${day.dow === '土' && !day.holiday ? 'sat' : 'sun'}`);
+    const head = el('div', 'day-head');
+    const info = el('div');
+    info.append(el('div', 'day-date', `${day.month}月${day.day}日（${day.dow}${day.holiday ? '・祝' : ''}）`));
+    const sum = el('div', 'day-sum');
+    sum.append(el('span', null, '空き'));
+    day.areas.forEach((a, i) => {
+      const s = el('span', null, `${a.name} `);
+      s.append(a.cal === '抽' && !frees[i] ? el('b', 'lot', '抽選') : el('b', frees[i] ? null : 'zero', frees[i]));
+      sum.append(s);
+    });
+    info.append(sum);
+    head.append(el('div', 'day-num', day.day), info);
+    card.append(head);
+    day.areas.forEach((a, i) => {
+      if (onlyFree && !frees[i]) return;
+      card.append(renderArea(a, onlyFree));
+    });
+    list.append(card);
+  }
+
+  if (!list.children.length) {
+    const msg = !month.days.length
+      ? `${month.month}月の残りに土日祝はありません`
+      : `${month.month}月の土日祝に空きはありません` + (lotteryDays ? `\n（抽選受付中の日が ${lotteryDays} 日あります。チェックを外すと表示されます）` : '');
+    const box = el('div', 'empty', msg);
+    box.style.whiteSpace = 'pre-line';
+    list.append(box);
+  }
 }
 
-function fetchFromGas(){
-  // JSONP（ポータルのランキングと同じ方式）
-  return new Promise((resolve,reject)=>{
-    const cb = "cb_"+Date.now();
-    const s = document.createElement("script");
-    const timer = setTimeout(()=>{cleanup();reject(new Error("timeout"))},20000);
-    function cleanup(){clearTimeout(timer);delete window[cb];s.remove();}
-    window[cb] = data => {cleanup();resolve(data);};
-    s.onerror = ()=>{cleanup();reject(new Error("network"));};
-    s.src = `${GAS_URL}?callback=${cb}`;
-    document.body.appendChild(s);
+function fetchedLabel(month) {
+  const d = new Date(month.fetchedAt);
+  return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')} 取得`;
+}
+
+// GAS は別オリジンなので JSONP (scriptタグ) で呼ぶ
+function jsonp(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const cb = `__yodo_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+    const script = document.createElement('script');
+    const cleanup = () => {
+      clearTimeout(timer);
+      script.remove();
+      delete window[cb];
+    };
+    const timer = setTimeout(() => {
+      cleanup();
+      window[cb] = () => delete window[cb]; // 遅れて届いた応答は捨てる
+      reject(new Error('応答がありません（タイムアウト）'));
+    }, timeoutMs);
+    window[cb] = (body) => {
+      cleanup();
+      resolve(body);
+    };
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('GASに接続できません。GAS_URL とデプロイ設定（アクセス: 全員）を確認してください'));
+    };
+    script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${cb}`;
+    document.head.append(script);
   });
 }
 
-function makeSample(){
-  // 実データの形が分かるまでの仮データ
-  const times = [["07:00","09:00"],["09:00","11:00"],["11:00","13:00"],["13:00","15:00"],["15:00","17:00"]];
-  const days = {};
-  let seed = 7;
-  const rnd = () => (seed = (seed*9301+49297)%233280)/233280;
-  [0,1].forEach(m => targetDays(m).forEach(d => {
-    const key = ymd(d);
-    days[key] = {};
-    AREAS.forEach(a => {
-      days[key][a.id] = times.map(([start,end]) => ({
-        start, end,
-        courts:Array.from({length:a.courts},(_,i)=>i+1).map(no => {
-          const r = rnd();
-          const busy = a.id==="kema" ? 0.85 : 0.7;
-          return { no, status: m===1 && r<0.12 ? "lottery" : r<busy ? "full" : "free" };
-        })
-      }));
-    });
-  }));
-  return new Promise(res => setTimeout(()=>res({updatedAt:new Date().toISOString(), days, sample:true}), 600));
-}
-
-// ===== 描画 =====
-function render(){
-  const list = document.getElementById("list");
-  if(!state.data){ list.innerHTML = '<p class="notice">「今すぐチェック」を押すと最新の空き状況を取得します。</p>'; return; }
-
-  const days = targetDays(state.tab);
-  let html = "";
-  for(const d of days){
-    const key = ymd(d), w = d.getDay(), hol = HOLIDAYS[key];
-    const byArea = state.data.days[key] || {};
-    const free = slots => slots.reduce((a,sl)=>a+sl.courts.filter(c=>c.status==="free").length,0);
-    const counts = AREAS.map(a => free(byArea[a.id]||[]));
-    const total = counts.reduce((a,b)=>a+b,0);
-    if(state.onlyFree && total===0) continue;
-
-    const summary = AREAS.map((a,i)=>`${a.name} ${counts[i]?`<b>${counts[i]}</b>`:"×"}`).join("　");
-    const dowCls = (w===0||hol) ? "sun" : w===6 ? "sat" : "";
-    html += `<section class="day${total?"":" none"}">
-      <div class="day-head">
-        <div class="num">${d.getDate()}</div>
-        <div class="day-info">
-          <div class="dow ${dowCls}">${d.getMonth()+1}月${d.getDate()}日（${DOW[w]}）${hol?`<span class="hname">${hol}</span>`:""}</div>
-          <div class="count">${total ? `空き　${summary}` : "空きなし"}</div>
-        </div>
-      </div>`;
-
-    AREAS.forEach((a,i) => {
-      const slots = byArea[a.id] || [];
-      const shown = state.onlyFree ? slots.filter(sl=>sl.courts.some(c=>c.status==="free")) : slots;
-      html += `<div class="area${i>0?" backup":""}">
-        <div class="area-head"><span class="area-name">${a.name}</span>
-          <span class="area-sub">${a.courts}面　${counts[i]?`空き <b>${counts[i]}</b> 枠`:"空きなし"}</span></div>`;
-      if(shown.length){
-        html += '<div class="slots">' + shown.map(sl => `
-          <div class="slot">
-            <div class="time">${hm(sl.start)}–${hm(sl.end)}</div>
-            <div class="courts">${sl.courts.map(c=>chip(c,a.name)).join("")}</div>
-          </div>`).join("") + "</div>";
-      }
-      html += "</div>";
-    });
-    html += "</section>";
-  }
-
-  if(!html){
-    html = `<p class="notice">${state.tab===0?"今月":"来月"}の土日祝に空きコートはありません。<br>「空きのある日だけ」を外すと全日程を確認できます。</p>`;
-  }
-  list.innerHTML = html;
-}
-
-const hm = t => t.replace(/^0/,"");
-
-function chip(c,area){
-  const label = `${area}コート${c.no}`;
-  if(c.status==="free")
-    return `<a class="ct free" href="${RESERVE_URL}" target="_blank" rel="noopener" aria-label="${label} 空き">${c.no}</a>`;
-  if(c.status==="lottery")
-    return `<span class="ct lottery" aria-label="${label} 抽選">${c.no}</span>`;
-  return `<span class="ct full" aria-label="${label} 予約済">${c.no}</span>`;
-}
-
-function showUpdated(){
-  const el = document.getElementById("updated");
-  if(!state.data){ el.textContent = "未取得"; return; }
-  const t = new Date(state.data.updatedAt);
-  el.innerHTML = `${t.getMonth()+1}/${t.getDate()} ${pad(t.getHours())}:${pad(t.getMinutes())} 取得` +
-    (state.data.sample ? '<span class="sample">サンプル</span>' : "");
-}
-
-// ===== 操作 =====
-async function check(){
-  const btn = document.getElementById("checkBtn");
-  btn.disabled = true; btn.textContent = "取得中…";
-  document.body.classList.add("loading");
-  try{
-    state.data = await fetchVacancy();
-  }catch(e){
-    document.getElementById("list").innerHTML =
-      '<p class="notice">空き状況を取得できませんでした。電波の良い場所でもう一度「今すぐチェック」を押してください。</p>';
-  }finally{
-    btn.disabled = false; btn.textContent = "今すぐチェック";
-    document.body.classList.remove("loading");
-  }
-  showUpdated();
-  if(state.data) render();
-}
-
-function selectTab(i){
-  state.tab = i;
-  document.getElementById("tab0").setAttribute("aria-selected", i===0);
-  document.getElementById("tab1").setAttribute("aria-selected", i===1);
+// quiet: 裏での先読み用。失敗しても画面にエラーを出さない
+async function load(m, force, quiet) {
+  if (loading[m]) return;
+  loading[m] = true;
+  if (!quiet) $('error').hidden = true;
   render();
+  try {
+    if (!GAS_URL.startsWith('https://script.google.com/')) throw new Error('index.html 冒頭の GAS_URL が未設定です');
+    const body = await jsonp(`${GAS_URL}?month=${m}` + (force ? '&force=1' : ''), 120000);
+    if (body.error) throw new Error(body.error);
+    months[m] = body;
+  } catch (err) {
+    if (!quiet) {
+      $('error').textContent = `${m ? '来月' : '今月'}分の取得に失敗しました: ${err.message}`;
+      $('error').hidden = false;
+    }
+  } finally {
+    loading[m] = false;
+    render();
+  }
+  // 来月分は取得に時間がかかるので、今月が取れたら裏で先に取っておく
+  if (m === 0 && months[0] && !months[1]) load(1, false, true);
 }
 
-document.getElementById("tab0").onclick = () => selectTab(0);
-document.getElementById("tab1").onclick = () => selectTab(1);
-document.getElementById("checkBtn").onclick = check;
-document.getElementById("onlyFree").onchange = e => { state.onlyFree = e.target.checked; render(); };
+for (const b of document.querySelectorAll('.tabs button')) {
+  b.addEventListener('click', () => {
+    tab = Number(b.dataset.tab);
+    store.set('tab', String(tab));
+    render();
+    if (!months[tab]) load(tab, false);
+  });
+}
+$('only-free').addEventListener('change', (e) => {
+  store.set('onlyFree', e.target.checked ? '1' : '0');
+  render();
+});
+$('refresh').addEventListener('click', () => load(tab, true));
 
-showUpdated();
 render();
-check();
+load(tab, false);
 </script>
 </body>
 </html>
