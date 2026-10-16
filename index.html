@@ -130,7 +130,7 @@
       <button id="refresh">今すぐチェック</button>
     </div>
     <div class="meta">
-      <span id="fetched">取得中…</span>
+      <span id="fetched">未チェック</span>
       <label><input type="checkbox" id="only-free" checked>空きのある日だけ</label>
     </div>
     <div class="error" id="error" hidden></div>
@@ -155,7 +155,34 @@ const store = {
   set(key, value) { try { localStorage.setItem(key, value); } catch { /* 保存できなくても動作に支障なし */ } },
 };
 
-const months = [null, null]; // 月ごとの取得結果 (0=今月 1=来月)。タブを開いたときに取得する
+// 日本時間の今日 (YYYY/MM/DD) と、今月・来月の年月 (YYYY/MM)
+const jstToday = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'Asia/Tokyo' }).replaceAll('-', '/');
+function targetYm(m) {
+  const [y, mo] = jstToday().split('/').map(Number);
+  const d = new Date(Date.UTC(y, mo - 1 + m, 1));
+  return `${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+// 前回チェックした結果は年月ごとに端末へ保存し、開いたときはそれを表示する
+// (年月で持つので、先月「来月」として取った分は月が替わると「今月」として表示される)
+function loadSaved(m) {
+  try {
+    const data = JSON.parse(store.get(`result_${targetYm(m)}`, 'null'));
+    return data && Array.isArray(data.days) ? data : null;
+  } catch {
+    return null;
+  }
+}
+function saveResult(data) {
+  store.set(`result_${data.ym}`, JSON.stringify(data));
+  // 過ぎた月の分は消しておく
+  try {
+    const keep = [0, 1].map((m) => `result_${targetYm(m)}`);
+    for (const key of Object.keys(localStorage)) if (key.startsWith('result_') && !keep.includes(key)) localStorage.removeItem(key);
+  } catch { /* 消せなくても動作に支障なし */ }
+}
+
+const months = [loadSaved(0), loadSaved(1)]; // 月ごとの取得結果 (0=今月 1=来月)。「今すぐチェック」で取り直す
 const loading = [false, false];
 let tab = Number(store.get('tab', '0')) === 1 ? 1 : 0;
 $('only-free').checked = store.get('onlyFree', '1') === '1';
@@ -217,17 +244,22 @@ function render() {
   const btn = $('refresh');
   btn.disabled = loading[tab];
   btn.textContent = loading[tab] ? '取得中…' : '今すぐチェック';
-  $('fetched').textContent = month ? fetchedLabel(month) : loading[tab] ? '取得中…' : '未取得';
+  $('fetched').textContent = month ? fetchedLabel(month) : loading[tab] ? '取得中…' : '未チェック';
   const list = $('list');
   if (!month) {
-    list.replaceChildren(loading[tab] ? el('div', 'empty', '予約サイトから取得しています…') : '');
+    const box = el('div', 'empty', loading[tab] ? '予約サイトから取得しています…' : 'まだチェックしていません\n「今すぐチェック」を押すと予約サイトから取得します');
+    box.style.whiteSpace = 'pre-line';
+    list.replaceChildren(box);
     return;
   }
+  // 保存しておいた結果には過ぎた日が含まれるので除く
+  const today = jstToday();
+  const days = month.days.filter((d) => d.date >= today);
   const onlyFree = $('only-free').checked;
   list.replaceChildren();
 
   let lotteryDays = 0;
-  for (const day of month.days) {
+  for (const day of days) {
     const frees = day.areas.map((a) => count(a, '空'));
     const hasFree = frees.some((n) => n > 0);
     if (!hasFree && day.areas.some((a) => a.cal === '抽')) lotteryDays++;
@@ -255,7 +287,7 @@ function render() {
   }
 
   if (!list.children.length) {
-    const msg = !month.days.length
+    const msg = !days.length
       ? `${month.month}月の残りに土日祝はありません`
       : `${month.month}月の土日祝に空きはありません` + (lotteryDays ? `\n（抽選受付中の日が ${lotteryDays} 日あります。チェックを外すと表示されます）` : '');
     const box = el('div', 'empty', msg);
@@ -266,7 +298,7 @@ function render() {
 
 function fetchedLabel(month) {
   const d = new Date(month.fetchedAt);
-  return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')} 取得`;
+  return `前回チェック ${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
 // GAS は別オリジンなので JSONP (scriptタグ) で呼ぶ
@@ -308,6 +340,7 @@ async function load(m, force, quiet) {
     const body = await jsonp(`${GAS_URL}?month=${m}` + (force ? '&force=1' : ''), 120000);
     if (body.error) throw new Error(body.error);
     months[m] = body;
+    saveResult(body);
   } catch (err) {
     if (!quiet) {
       $('error').textContent = `${m ? '来月' : '今月'}分の取得に失敗しました: ${err.message}`;
@@ -326,7 +359,6 @@ for (const b of document.querySelectorAll('.tabs button')) {
     tab = Number(b.dataset.tab);
     store.set('tab', String(tab));
     render();
-    if (!months[tab]) load(tab, false);
   });
 }
 $('only-free').addEventListener('change', (e) => {
@@ -336,7 +368,6 @@ $('only-free').addEventListener('change', (e) => {
 $('refresh').addEventListener('click', () => load(tab, true));
 
 render();
-load(tab, false);
 </script>
 </body>
 </html>
